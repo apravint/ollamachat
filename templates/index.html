@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+        #chatbox {
+            width: 80%;
+            max-width: 600px;
+            height: 70vh;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .message {
+            margin: 10px 0;
+            padding: 20px 10px 10px 10px; /* Add padding to the top */
+            border-radius: 10px;
+            max-width: 80%;
+            position: relative;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: #fff;
+            align-self: flex-end;
+        }
+        .assistant-message {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+        }
+        .message-label {
+            font-size: 12px;
+            position: absolute;
+            top: 5px; /* Adjust top position */
+            left: 10px;
+            color: #666;
+        }
+        .user-message .message-label {
+            left: auto;
+            right: 10px;
+        }
+        #user-input {
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            margin-top: 10px;
+        }
+        #user-input input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        #user-input button {
+            padding: 15px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        #user-input button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox"></div>
+    <div id="user-input">
+        <input type="text" id="message" placeholder="Type your message here...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            if (message.trim() === '') return;
+
+            const chatbox = document.getElementById('chatbox');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.innerHTML = `<span class="message-label">You</span>${message}`;
+            chatbox.appendChild(userMessage);
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message assistant-message';
+                aiMessage.innerHTML = `<span class="message-label">Assistant</span>${data.response}`;
+                chatbox.appendChild(aiMessage);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+
+            document.getElementById('message').value = '';
+        }
+    </script>
+</body>
+</html>
